@@ -28,8 +28,8 @@
 class QgsLineSymbol;
 class QgsFillSymbol;
 class QgsRenderContext;
+class QgsSymbol;
 class QgsNumericFormat;
-
 
 /**
  * \brief Base class for plot/chart/graphs.
@@ -61,6 +61,56 @@ class CORE_EXPORT QgsPlot
   private:
 
 
+};
+
+class CORE_EXPORT QgsAbstractPlotSeries
+{
+  public:
+
+    QgsAbstractPlotSeries() = default;
+    ~QgsAbstractPlotSeries() = default;
+
+    QString name() const;
+    void setName( const QString &name );
+    QgsSymbol *symbol() const;
+    void setSymbol( QgsSymbol *symbol );
+
+  private:
+
+    QString mName;
+    QgsSymbol *mSymbol = nullptr;
+};
+
+class CORE_EXPORT QgsXyPlotSeries : public QgsAbstractPlotSeries
+{
+  public:
+
+    QgsXyPlotSeries() = default;
+    ~QgsXyPlotSeries() = default;
+
+    QList<std::pair<double, double>> data() const SIP_SKIP;
+    void append( const double &x, const double &y );
+    void clear();
+
+  private:
+
+    QList<std::pair<double, double>> mData;
+};
+
+class CORE_EXPORT QgsPlotData
+{
+  public:
+
+    QgsPlotData() = default;
+    ~QgsPlotData();
+
+    QList<QgsAbstractPlotSeries *> series() const;
+    void addSeries( QgsAbstractPlotSeries *series );
+    void clearSeries();
+
+  private:
+
+    QList<QgsAbstractPlotSeries *> mSeries;
 };
 
 /**
@@ -286,7 +336,7 @@ class CORE_EXPORT Qgs2DPlot : public QgsPlot
     /**
      * Renders the plot.
      */
-    virtual void render( QgsRenderContext &context );
+    virtual void render( QgsRenderContext &context, const QgsPlotData &plotData = QgsPlotData() );
 
     /**
      * Renders the plot content.
@@ -299,7 +349,7 @@ class CORE_EXPORT Qgs2DPlot : public QgsPlot
      * The \a plotArea argument specifies that area of the plot which corresponds to the actual plot content. Implementations
      * should take care to scale values accordingly to render points correctly inside this plot area.
      */
-    virtual void renderContent( QgsRenderContext &context, const QRectF &plotArea );
+    virtual void renderContent( QgsRenderContext &context, const QRectF &plotArea, const QgsPlotData &plotData = QgsPlotData() );
 
     /**
      * Returns the overall size of the plot (in millimeters) (including titles and other components which sit outside the plot area).
@@ -378,7 +428,7 @@ class CORE_EXPORT Qgs2DXyPlot : public Qgs2DPlot
     /**
      * Renders the plot.
      */
-    void render( QgsRenderContext &context ) override;
+    void render( QgsRenderContext &context, const QgsPlotData &plotData = QgsPlotData() ) override;
 
     /**
      * Returns the area of the plot which corresponds to the actual plot content (excluding all titles and other components which sit
