@@ -88,13 +88,13 @@ class CORE_EXPORT QgsXyPlotSeries : public QgsAbstractPlotSeries
     QgsXyPlotSeries() = default;
     ~QgsXyPlotSeries() = default;
 
-    QList<std::pair<double, double>> data() const SIP_SKIP;
-    void append( const double &x, const double &y );
+    QList<std::pair<QVariant, double>> data() const SIP_SKIP;
+    void append( const QVariant &x, const double &y );
     void clear();
 
   private:
 
-    QList<std::pair<double, double>> mData;
+    QList<std::pair<QVariant, double>> mData;
 };
 
 class CORE_EXPORT QgsPlotData
@@ -140,6 +140,18 @@ class CORE_EXPORT QgsPlotAxis
      * Reads the axis' properties from an XML \a element.
      */
     bool readXml( const QDomElement &element, const QgsReadWriteContext &context );
+
+    /**
+     * Returns the axis type.
+     * \since QGIS 4.0
+     */
+    Qgis::PlotAxisType type() const;
+
+    /**
+     * Sets the axis type.
+     * \since QGIS 4.0
+     */
+    void setType( Qgis::PlotAxisType type );
 
     /**
      * Returns the interval of minor grid lines for the axis.
@@ -290,6 +302,8 @@ class CORE_EXPORT QgsPlotAxis
 #ifdef SIP_RUN
     QgsPlotAxis( const QgsPlotAxis &other );
 #endif
+
+    Qgis::PlotAxisType mType = Qgis::PlotAxisType::ValueType;
 
     double mGridIntervalMinor = 1;
     double mGridIntervalMajor = 5;

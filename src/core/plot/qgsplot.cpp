@@ -52,8 +52,20 @@ QgsPlotAxis::QgsPlotAxis()
 
 QgsPlotAxis::~QgsPlotAxis() = default;
 
+
+Qgis::PlotAxisType QgsPlotAxis::type() const
+{
+  return mType;
+}
+
+void QgsPlotAxis::setType( Qgis::PlotAxisType type )
+{
+  mType = type;
+}
+
 bool QgsPlotAxis::writeXml( QDomElement &element, QDomDocument &document, const QgsReadWriteContext &context ) const
 {
+  element.setAttribute( QStringLiteral( "type" ), qgsEnumValueToKey( mType ) );
   element.setAttribute( QStringLiteral( "gridIntervalMinor" ), qgsDoubleToString( mGridIntervalMinor ) );
   element.setAttribute( QStringLiteral( "gridIntervalMajor" ), qgsDoubleToString( mGridIntervalMajor ) );
   element.setAttribute( QStringLiteral( "labelInterval" ), qgsDoubleToString( mLabelInterval ) );
@@ -80,6 +92,7 @@ bool QgsPlotAxis::writeXml( QDomElement &element, QDomDocument &document, const 
 
 bool QgsPlotAxis::readXml( const QDomElement &element, const QgsReadWriteContext &context )
 {
+  mType = qgsEnumKeyToValue( element.attribute( QStringLiteral( "type" ) ), Qgis::PlotAxisType::ValueType );
   mGridIntervalMinor = element.attribute( QStringLiteral( "gridIntervalMinor" ) ).toDouble();
   mGridIntervalMajor = element.attribute( QStringLiteral( "gridIntervalMajor" ) ).toDouble();
   mLabelInterval = element.attribute( QStringLiteral( "labelInterval" ) ).toDouble();
@@ -906,12 +919,12 @@ void QgsAbstractPlotSeries::setSymbol( QgsSymbol *symbol )
 // QgsXyPlotSeries
 //
 
-QList<std::pair<double, double>> QgsXyPlotSeries::data() const
+QList<std::pair<QVariant, double>> QgsXyPlotSeries::data() const
 {
   return mData;
 }
 
-void QgsXyPlotSeries::append( const double &x, const double &y )
+void QgsXyPlotSeries::append( const QVariant &x, const double &y )
 {
   mData << std::make_pair( x, y );
 }
